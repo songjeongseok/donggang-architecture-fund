@@ -2,7 +2,7 @@
 """Validate the pre-opening informational page and stage a public-file allowlist.
 
 Python >= 3.9, standard library only. Never runs a deployment or reads .env.
-The intentional no-form/no-script guard must be redesigned before adding intake.
+One reviewed local script supports amount selection; intake remains unavailable.
 """
 
 from collections import Counter
@@ -19,7 +19,8 @@ from urllib.parse import unquote, urlsplit
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "site"
 OUTPUT = ROOT / "dist"
-PUBLIC_FILES = ("index.html", ".nojekyll")
+PUBLIC_FILES = ("index.html", ".nojekyll", "donation.js")
+AMOUNTS = (1000, 5000, 10000, 30000, 50000, 100000, 200000, 500000, 1000000)
 
 
 class Page(HTMLParser):
@@ -59,7 +60,21 @@ def validate_html(source):
         errors.append("Exactly one primary heading is required")
     if "현재 기부 신청·입금을 접수하지 않습니다." not in " ".join(page.text):
         errors.append("Pre-opening / no-intake notice missing")
-    blocked = {"script", "form", "input", "textarea", "select", "iframe", "object", "embed", "base"}
+    blocked = {"form", "input", "textarea", "select", "iframe", "object", "embed", "base"}
+    scripts = [attrs for tag, attrs in page.elements if tag == "script"]
+    if scripts != [{"src": "./donation.js", "defer": None}] or not re.search(r'<script src="\./donation\.js" defer>\s*</script>', source):
+        errors.append("Only the reviewed deferred donation.js script is allowed")
+    amount_buttons = [attrs for tag, attrs in page.elements if tag == "button" and "data-amount" in attrs]
+    if [attrs.get("data-amount") for attrs in amount_buttons] != [str(n) for n in AMOUNTS]:
+        errors.append("Exactly the nine approved amount buttons are required")
+    if any(a.get("aria-pressed") != "false" or a.get("type") != "button" or "disabled" not in a for a in amount_buttons):
+        errors.append("Amount buttons must start unselected and disabled until JS loads")
+    pending = [a for t, a in page.elements if a.get("id") == "transfer-pending"]
+    if len(pending) != 1 or "disabled" not in pending[0]:
+        errors.append("Transfers must remain disabled until receiving details and service are configured")
+    for required_id in ("donation", "selected-amount", "transfer-guide", "copy-amount", "copy-status", "transfer-note"):
+        if required_id not in ids:
+            errors.append("Missing donation UI element: " + required_id)
     anchor_count = 0
     for tag, attrs in page.elements:
         if tag in blocked:
@@ -68,7 +83,7 @@ def validate_html(source):
             errors.append("Inline JavaScript event handler is not allowed")
         if tag == "meta" and attrs.get("http-equiv", "").lower() == "refresh":
             errors.append("Automatic redirects are not allowed")
-        if "src" in attrs or "srcset" in attrs or (tag == "link" and "href" in attrs):
+        if ("src" in attrs and not (tag == "script" and attrs.get("src") == "./donation.js")) or "srcset" in attrs or (tag == "link" and "href" in attrs):
             errors.append("New external/local assets require an explicit public-file review")
         if "href" in attrs:
             href = attrs["href"] or ""
@@ -92,7 +107,15 @@ def validate_html(source):
         errors.append("Possible credential in public HTML")
     if errors:
         raise ValueError("\n".join(errors))
-    return {"in_page_links": anchor_count, "faq_items": sum(t == "details" for t, _ in page.elements), "forms": 0, "scripts": 0}
+    return {"in_page_links": anchor_count, "faq_items": sum(t == "details" for t, _ in page.elements), "forms": 0, "scripts": 1, "amount_options": list(AMOUNTS), "transfer_enabled": False}
+
+
+def validate_script(source):
+    # Narrow check for this browser-only selector, not a general security audit.
+    if re.search(r"localStorage|sessionStorage|indexedDB|XMLHttpRequest|WebSocket|sendBeacon|\bfetch\s*\(|\beval\s*\(|innerHTML|document\.write|window\.open|location\s*[.=]", source):
+        raise ValueError("Network, persistent data or unsafe dynamic HTML requires review")
+    if re.search(r"https?://|intent://|-----BEGIN [A-Z ]*PRIVATE KEY-----|gh[pousr]_[A-Za-z0-9]{20,}|sk_live_[A-Za-z0-9]{10,}", source):
+        raise ValueError("External transfer URL or credential requires review")
 
 
 def build():
@@ -100,13 +123,14 @@ def build():
         raise ValueError("Expected a real site directory")
     actual = {p.name for p in SOURCE.iterdir()}
     if actual != set(PUBLIC_FILES):
-        raise ValueError("site/ must contain only index.html and .nojekyll; review any additional public files")
+        raise ValueError("site/ must contain only the reviewed public files: " + ", ".join(PUBLIC_FILES))
     for name in PUBLIC_FILES:
         item = SOURCE / name
         if item.is_symlink() or not item.is_file():
             raise ValueError("Public input must be a regular file: " + name)
     html = (SOURCE / "index.html").read_text(encoding="utf-8")
     result = validate_html(html)
+    validate_script((SOURCE / "donation.js").read_text(encoding="utf-8"))
     if OUTPUT.is_symlink() or (OUTPUT.exists() and not OUTPUT.is_dir()):
         raise ValueError("Refusing to replace a non-directory/symlink dist path")
     # Fully validate before replacing previous generated output; no networking.

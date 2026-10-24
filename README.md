@@ -8,7 +8,7 @@
 
 호스팅은 GitHub Pages, 빌드와 배포는 GitHub Actions를 사용합니다.
 
-현재 배포 대상은 **개설 준비 안내용 정적 홈페이지**입니다. 로그인, 관리자 화면, 결제, 신청 저장, 실입금 집계는 구현되어 있지 않습니다. 계좌번호만 넣어서 이런 기능이 활성화되지는 않습니다.
+현재 배포 대상은 **금액 선택이 가능한 개설 준비 안내용 정적 홈페이지**입니다. 1천원·5천원·1만원·3만원·5만원·10만원·20만원·50만원·100만원 선택과 금액 복사를 지원합니다. 받는 은행은 새마을금고이며 계좌번호와 예금주가 없어 실제 이체는 비활성 상태입니다. 로그인, 관리자 화면, 결제, 신청 저장, 실입금 집계는 구현되어 있지 않습니다. 계좌번호만 넣어서 이런 기능이 활성화되지는 않습니다.
 
 ## 실행
 
@@ -18,8 +18,8 @@ python3 scripts/build.py
 
 Python 3.9 이상, 외부 패키지 없이 실행합니다. Windows에서는 `py -3 scripts/build.py`를 사용할 수 있습니다.
 
-- 원본: `site/index.html`
-- 공개 산출물: `dist/index.html`, `dist/.nojekyll`
+- 원본: `site/index.html`, `site/donation.js`
+- 공개 산출물: `dist/index.html`, `dist/.nojekyll`, `dist/donation.js`
 - 빌드 결과: `.build/report.json` (공개 산출물에 포함하지 않음)
 - 설치 명령: 없음
 - Node.js/npm: 필요 없음
