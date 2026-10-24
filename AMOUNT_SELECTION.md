@@ -13,7 +13,7 @@
 
 ## 확인
 
-Python 빌드 및 JavaScript 구문 검사 통과. 브라우저에서 9개 버튼의 표시 금액, 단일 선택, Enter 입력, 이체 비활성 상태, 데스크톱 가로 넘침 없음 확인. HTTP 미리보기의 클립보드 실패 안내 확인. HTTPS 공개 페이지의 복사 동작은 배포 후 별도 확인한다. 좁은 화면용 3열 버튼과 세로 안내 배치를 CSS에 반영했으며 이번 변경의 실제 모바일 기기 검수는 별도 필요하다.
+Python 빌드 및 JavaScript 구문 검사 통과. 브라우저에서 9개 버튼의 표시 금액, 단일 선택, Enter 입력, 이체 비활성 상태, 데스크톱 가로 넘침 없음 확인. HTTP 미리보기의 클립보드 실패 안내 확인. HTTPS 공개 페이지에서 50,000원 선택과 Clipboard API의 성공 응답에 따른 복사 완료 메시지를 확인했다. 별도 브라우저 도구의 클립보드 읽기 결과와는 일치하지 않아 실제 사용자 기기에서 붙여넣기 검수는 남아 있다. 좁은 화면용 3열 버튼과 세로 안내 배치를 CSS에 반영했으며 이번 변경의 실제 모바일 기기 검수는 별도 필요하다.
 
 빌드 검사는 정확한 9개 금액, 이체 비활성, 단일 검토된 JS 파일만 허용한다. 잘못된 금액, 이체 임의 활성화, 추가 스크립트, 폼, 네트워크·저장 API 도입을 거부하는 검사를 통과했다. 공개 파일은 index.html, donation.js, .nojekyll 세 개다. 환경 변수, 서버, DB가 필요 없다. 이 정적 검사는 완전한 보안감사가 아니다.
 
@@ -37,3 +37,11 @@ https://developers.kftc.or.kr/dev/openapi/open-banking/oauth
 - GitHub Actions: Validate and optionally publish Pages → main → publish 선택 시 공개 배포.
 
 실제 접수 개시 시 화면의 미접수 안내, 개인정보·영수증·문의 안내와 빌드의 이체 금지 규칙을 함께 검토하고 변경한다. 임의로 버튼의 disabled만 제거하지 않는다.
+
+## 공개 반영 결과
+
+[GitHub Actions 실행 #3](https://github.com/songjeongseok/donggang-architecture-fund/actions/runs/40105469407)에서 build와 deploy가 성공했다. 배포 소스 커밋은 `fb7f4f929107b20a3b9f5f599bae33679e573034`이다.
+
+공개 페이지: https://songjeongseok.github.io/donggang-architecture-fund/#donation
+
+공개 페이지에서 9개 버튼, 새마을금고 표시, 50,000원 선택 반영, 송금 비활성 상태를 확인했다. 현재 계좌번호·예금주 및 공식 송금 연결은 제공되지 않았으므로 실제 송금 기능이 완성되었다는 뜻은 아니다.
