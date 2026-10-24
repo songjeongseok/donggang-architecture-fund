@@ -58,7 +58,7 @@ def validate_html(source):
         errors.append("Mobile viewport declaration missing")
     if sum(t == "h1" for t, _ in page.elements) != 1:
         errors.append("Exactly one primary heading is required")
-    if "현재 기부 신청·입금을 접수하지 않습니다." not in " ".join(page.text):
+    if "온라인 입금 확인 접수는 준비 중입니다." not in " ".join(page.text):
         errors.append("Pre-opening / no-intake notice missing")
     blocked = {"form", "input", "textarea", "select", "iframe", "object", "embed", "base"}
     scripts = [attrs for tag, attrs in page.elements if tag == "script"]
@@ -69,9 +69,11 @@ def validate_html(source):
         errors.append("Exactly the nine approved amount buttons are required")
     if any(a.get("aria-pressed") != "false" or a.get("type") != "button" or "disabled" not in a for a in amount_buttons):
         errors.append("Amount buttons must start unselected and disabled until JS loads")
-    pending = [a for t, a in page.elements if a.get("id") == "transfer-pending"]
+    pending = [a for t, a in page.elements if a.get("id") == "copy-account"]
     if len(pending) != 1 or "disabled" not in pending[0]:
-        errors.append("Transfers must remain disabled until receiving details and service are configured")
+        errors.append("Account copy must start disabled until JS loads")
+    if "9002205750266" not in source or "동강대학교 건축과" not in source:
+        errors.append("Approved receiving account and holder must be displayed")
     for required_id in ("donation", "selected-amount", "transfer-guide", "copy-amount", "copy-status", "transfer-note"):
         if required_id not in ids:
             errors.append("Missing donation UI element: " + required_id)

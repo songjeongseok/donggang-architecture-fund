@@ -1,5 +1,5 @@
 "use strict";
-// Amount selection only. No payments, bank login, network calls or stored pledges.
+// Amount/account display and copy only. No bank login, network calls or donor storage.
 (() => {
   const allowedAmounts = new Set([1000, 5000, 10000, 30000, 50000, 100000, 200000, 500000, 1000000]);
   const choices = [...document.querySelectorAll(".amount-choice")];
@@ -7,6 +7,18 @@
   const guide = document.getElementById("transfer-guide");
   const copy = document.getElementById("copy-amount");
   const status = document.getElementById("copy-status");
+  const accountCopy = document.getElementById("copy-account");
+  accountCopy.disabled = false;
+  accountCopy.addEventListener("click", async () => {
+    accountCopy.disabled = true;
+    try {
+      if (!navigator.clipboard || !window.isSecureContext) throw new Error("Clipboard unavailable");
+      await navigator.clipboard.writeText("9002205750266");
+      status.textContent = "계좌번호를 복사했습니다. 은행 앱에서 새마을금고와 예금주 동강대학교 건축과를 확인해 주세요.";
+    } catch {
+      status.textContent = "복사를 사용할 수 없습니다. 계좌번호 9002205750266을 길게 눌러 직접 복사해 주세요.";
+    } finally { accountCopy.disabled = false; }
+  });
   let selectedAmount = null;
   const format = amount => new Intl.NumberFormat("ko-KR").format(amount) + "원";
   for (const button of choices) {
