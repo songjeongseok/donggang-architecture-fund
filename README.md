@@ -2,7 +2,9 @@
 
 **대상 저장소: `songjeongseok/donggang-architecture-fund` · 기본 브랜치: `main`**
 
-사용자 요청에 따라 전용 저장소를 생성하고 GitHub Pages 배포를 진행합니다. 실제 배포 결과는 `PUBLICATION_REPORT.md`가 추가된 뒤 해당 기록을 확인하세요.
+**공개 주소: https://songjeongseok.github.io/donggang-architecture-fund/**
+
+2026-10-24 GitHub Pages 배포를 완료했습니다. 빌드·공개 배포 성공과 실제 페이지의 메뉴·FAQ·HTTPS를 확인했습니다. 상세 결과와 미검증 항목은 [PUBLICATION_REPORT.md](PUBLICATION_REPORT.md)를 확인하세요.
 
 호스팅은 GitHub Pages, 빌드와 배포는 GitHub Actions를 사용합니다.
 
