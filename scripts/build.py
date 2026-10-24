@@ -58,8 +58,8 @@ def validate_html(source):
         errors.append("Mobile viewport declaration missing")
     if sum(t == "h1" for t, _ in page.elements) != 1:
         errors.append("Exactly one primary heading is required")
-    if "온라인 입금 확인 접수는 준비 중입니다." not in " ".join(page.text):
-        errors.append("Pre-opening / no-intake notice missing")
+    if "이체 후 이름·연락처 등록을 이용하실 수 있습니다." not in " ".join(page.text):
+        errors.append("Intake link availability notice missing")
     blocked = {"form", "input", "textarea", "select", "iframe", "object", "embed", "base"}
     scripts = [attrs for tag, attrs in page.elements if tag == "script"]
     if scripts != [{"src": "./donation.js", "defer": None}] or not re.search(r'<script src="\./donation\.js" defer>\s*</script>', source):
@@ -89,8 +89,11 @@ def validate_html(source):
             errors.append("New external/local assets require an explicit public-file review")
         if "href" in attrs:
             href = attrs["href"] or ""
+            approved_links = {"https://donggang-architecture-fund.jammyraven2.chatgpt.site/#donation", "https://donggang-architecture-fund.jammyraven2.chatgpt.site/#privacy", "tel:0625202351", "mailto:archblue79@donggang.ac.kr"}
+            if tag == "a" and href in approved_links:
+                continue
             if tag != "a" or not href.startswith("#"):
-                errors.append("Only in-page navigation is enabled in this single-file site")
+                errors.append("Only reviewed intake/contact links and in-page links are allowed")
                 continue
             anchor_count += 1
             if unquote(urlsplit(href).fragment) not in ids:
