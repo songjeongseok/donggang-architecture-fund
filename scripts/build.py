@@ -72,9 +72,11 @@ def validate_html(source):
     pending = [a for t, a in page.elements if a.get("id") == "copy-account"]
     if len(pending) != 1 or "disabled" not in pending[0]:
         errors.append("Account copy must start disabled until JS loads")
-    if "9002205750266" not in source or "동강대학교 건축과" not in source:
+    if "9002-1718-9832-5" not in source or "동강대학교(발전기금관리위원회)" not in source:
         errors.append("Approved receiving account and holder must be displayed")
-    for required_id in ("donation", "selected-amount", "transfer-guide", "copy-amount", "copy-status", "transfer-note"):
+    if "9002205750266" in source:
+        errors.append("The previous receiving account must not be published")
+    for required_id in ("university-fund", "donation", "selected-amount", "transfer-guide", "copy-amount", "copy-status", "transfer-note"):
         if required_id not in ids:
             errors.append("Missing donation UI element: " + required_id)
     anchor_count = 0
@@ -89,7 +91,7 @@ def validate_html(source):
             errors.append("New external/local assets require an explicit public-file review")
         if "href" in attrs:
             href = attrs["href"] or ""
-            approved_links = {"https://donggang-architecture-fund.jammyraven2.chatgpt.site/#donation", "https://donggang-architecture-fund.jammyraven2.chatgpt.site/#privacy", "tel:0625202351", "mailto:archblue79@donggang.ac.kr"}
+            approved_links = {"https://donggang-architecture-fund.jammyraven2.chatgpt.site/#donation", "https://donggang-architecture-fund.jammyraven2.chatgpt.site/#privacy", "tel:0625202351", "mailto:archblue79@donggang.ac.kr", "tel:0625202213", "https://www.dkc.ac.kr/", "https://www.nts.go.kr/nts/cm/cntnts/cntntsView.do?cntntsId=238907&mi=40251"}
             if tag == "a" and href in approved_links:
                 continue
             if tag != "a" or not href.startswith("#"):
