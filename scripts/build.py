@@ -91,7 +91,7 @@ def validate_html(source):
             errors.append("New external/local assets require an explicit public-file review")
         if "href" in attrs:
             href = attrs["href"] or ""
-            approved_links = {"https://donggang-architecture-fund.jammyraven2.chatgpt.site/#donation", "https://donggang-architecture-fund.jammyraven2.chatgpt.site/#privacy", "tel:0625202351", "mailto:archblue79@donggang.ac.kr", "tel:0625202213", "https://www.dkc.ac.kr/", "https://www.nts.go.kr/nts/cm/cntnts/cntntsView.do?cntntsId=238907&mi=40251"}
+            approved_links = {"https://donggang-architecture-fund.jammyraven2.chatgpt.site/#donation", "https://donggang-architecture-fund.jammyraven2.chatgpt.site/#privacy", "tel:0625202351", "mailto:archblue79@donggang.ac.kr", "tel:0625202213", "https://www.dkc.ac.kr/", "https://donggang-architecture-fund.jammyraven2.chatgpt.site/pledge.html", "https://www.nts.go.kr/nts/cm/cntnts/cntntsView.do?cntntsId=238907&mi=40251"}
             if tag == "a" and href in approved_links:
                 continue
             if tag != "a" or not href.startswith("#"):
